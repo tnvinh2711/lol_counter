@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private ImageView ivheader;
     private RecyclerView rvHero;
-    private String URL_DOMAIN = "https://skmoba.com";
+    public static String URL_DOMAIN = "https://skmoba.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,20 @@ public class MainActivity extends AppCompatActivity {
     }
     @SuppressLint("StaticFieldLeak")
     private void initRecyclerView() {
+        GridLayoutManager adapterManager  = new GridLayoutManager(MainActivity.this, 3);
+        rvHero.setLayoutManager(adapterManager);
+        final HeroAdapter heroAdapter = new HeroAdapter(MainActivity.this,new ArrayList<ItemHero>());
+        rvHero.setAdapter(heroAdapter);
+        heroAdapter.setListener(new HeroAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(ItemHero item, int position) {
+                Intent intent = new Intent(MainActivity.this,DetailActivity.class);
+                intent.putExtra("Url", item.getUrl());
+                intent.putExtra("Title", item.getBaseName());
+                intent.putExtra("Name", item.getName());
+                startActivity(intent);
+            }
+        });
         new AsyncTask<Void, Void, ArrayList<ItemHero>>() {
 
             public ArrayList<ItemHero> doInBackground(Void... params) {
@@ -59,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     for(Element element: heroList){
                         ItemHero itemHero = new ItemHero();
                         itemHero.setName(element.select("a").attr("title").replace("Khắc chế ",""));
+                        itemHero.setBaseName(element.select("a").attr("title"));
                         itemHero.setUrl_image(URL_DOMAIN+element.select("img").attr("src"));
                         itemHero.setUrl(element.select("a").attr("href"));
                         listHero.add(itemHero);
@@ -72,10 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(ArrayList<ItemHero> result) {
-                GridLayoutManager adapterManager  = new GridLayoutManager(MainActivity.this, 3);
-                rvHero.setLayoutManager(adapterManager);
-                HeroAdapter heroAdapter = new HeroAdapter(MainActivity.this,result);
-                rvHero.setAdapter(heroAdapter);
+                heroAdapter.setList(result);
             }
         }.execute();
     }

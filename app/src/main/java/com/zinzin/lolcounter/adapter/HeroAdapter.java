@@ -48,12 +48,18 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         viewHolder.tvNameUnit.setText(units.getName());
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.centerCrop();
-        Glide.with(activity).load(units.getUrl_image()).apply(requestOptions).placeholder(R.drawable.ic_launcher_background).into(viewHolder.ivIconUnit);
+        Glide.with(activity).load(units.getUrl_image()).apply(requestOptions).into(viewHolder.ivIconUnit);
     }
 
     @Override
     public int getItemCount() {
         return unitsList.size();
+    }
+
+    public void setList(ArrayList<ItemHero> result) {
+        unitsList.clear();
+        unitsList.addAll(result);
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,10 +76,8 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    itemView.setClickable(false);
                     if (listener != null)
                         listener.OnItemClick(item, position);
-                    notifyDataSetChanged();
                 }
             });
         }
