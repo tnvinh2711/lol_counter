@@ -113,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(String result) {
-                Log.e("main", result);
                 Glide.with(MainActivity.this).load("https://lienminh.garena.vn" + result).optionalCenterCrop().into(ivheader);
             }
         }.execute();

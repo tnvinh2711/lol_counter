@@ -1,10 +1,14 @@
 package com.zinzin.lolcounter.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemHero {
     String name;
     String baseName;
     String url;
     String url_image;
+    List<String> item = new ArrayList<>();
 
     public ItemHero(String name, String baseName, String url, String url_image) {
         this.name = name;
@@ -46,5 +50,13 @@ public class ItemHero {
 
     public void setBaseName(String baseName) {
         this.baseName = baseName;
+    }
+
+    public List<String> getItem() {
+        return item;
+    }
+
+    public void setItem(List<String> item) {
+        this.item = item;
     }
 }

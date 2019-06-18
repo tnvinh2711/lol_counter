@@ -15,6 +15,8 @@ public class DetailCounter {
     List<ItemHero> itemHeroesCounter = new ArrayList<>();
     List<ItemHero> itemHeroesNerf = new ArrayList<>();
 
+    String tips;
+
     public DetailCounter() {
     }
 
@@ -88,5 +90,13 @@ public class DetailCounter {
 
     public void setItemHeroesNerf(List<ItemHero> itemHeroesNerf) {
         this.itemHeroesNerf = itemHeroesNerf;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 }
