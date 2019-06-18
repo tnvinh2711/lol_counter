@@ -1,6 +1,7 @@
 package com.zinzin.lolcounter.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -8,6 +9,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
 import android.util.TypedValue;
 
 public class Utils {
@@ -41,5 +43,10 @@ public class Utils {
         canvas.drawRoundRect(rectF, cornerSizePx, cornerSizePx, paint);
 
         return output;
+    }
+    public static boolean isNetworkConnected(Activity activity) {
+        ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
     }
 }

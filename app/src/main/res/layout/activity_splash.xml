@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#D5FFC107"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/view">
 
     <ImageView
         android:id="@+id/iv_logo"

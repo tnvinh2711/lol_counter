@@ -29,174 +29,205 @@
                 android:layout_height="0.1dp"
                 android:background="#FFF" />
         </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.core.widget.NestedScrollView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#131836"
-            tools:context=".DetailActivity">
-
-            <LinearLayout
+            android:id="@+id/swipeView">
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-
-                <ImageView
-                    android:id="@+id/iv_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginBottom="16dp"
-                    android:scaleType="centerCrop" />
-
+                android:layout_height="match_parent">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:id="@+id/ll_loading"
                     android:orientation="vertical">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <com.wang.avi.AVLoadingIndicatorView
+                        android:layout_marginTop="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        app:indicatorName="PacmanIndicator"/>
+                    <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="80dp">
+                        android:layout_height="wrap_content"
 
-                        <ImageView
-                            android:id="@+id/iv_ava"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tv_name"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            android:ellipsize="end"
-                            android:lines="1"
-                            android:textColor="@color/colorWhite"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/iv_ava"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rcv_status"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="10dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/iv_ava"
-                            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rcv_lane"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="10dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/iv_ava"
-                            app:layout_constraintTop_toBottomOf="@+id/rcv_status" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/colorWhite"
+                        android:text="Loading....."
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+                <androidx.core.widget.NestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/scrollView"
+                    android:visibility="gone"
+                    android:background="#131836"
+                    tools:context=".DetailActivity">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:orientation="horizontal"
-                        android:weightSum="5">
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+
+                        <ImageView
+                            android:id="@+id/iv_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:layout_marginBottom="16dp"
+                            android:scaleType="centerCrop" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginRight="16dp"
                             android:orientation="vertical">
 
-                            <TextView
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="80dp">
+
+                                <ImageView
+                                    android:id="@+id/iv_ava"
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintLeft_toLeftOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <TextView
+                                    android:id="@+id/tv_name"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="16dp"
+                                    android:layout_marginLeft="16dp"
+                                    android:ellipsize="end"
+                                    android:lines="1"
+                                    android:textColor="@color/colorWhite"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toEndOf="@+id/iv_ava"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rcv_status"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="16dp"
+                                    android:layout_marginLeft="16dp"
+                                    android:layout_marginTop="10dp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toEndOf="@+id/iv_ava"
+                                    app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rcv_lane"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="16dp"
+                                    android:layout_marginLeft="16dp"
+                                    android:layout_marginTop="10dp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toEndOf="@+id/iv_ava"
+                                    app:layout_constraintTop_toBottomOf="@+id/rcv_status" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Trang bị"
+                                android:layout_marginTop="16dp"
+                                android:orientation="horizontal"
+                                android:weightSum="5">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="2"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Trang bị"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold" />
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/rcv_item"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="10dp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="3"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Phép bổ trợ"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold" />
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/rcv_buff"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="10dp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tv_strong"
+                                android:layout_marginTop="16dp"
+                                android:layout_marginBottom="10dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
                                 android:textColor="@color/colorWhite"
-                                android:textSize="14sp"
                                 android:textStyle="bold" />
 
                             <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rcv_item"
+                                android:id="@+id/rcv_strong"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp" />
-                        </LinearLayout>
+                                android:layout_marginBottom="16dp"></androidx.recyclerview.widget.RecyclerView>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:orientation="vertical">
+
 
                             <TextView
+                                android:id="@+id/tv_weak"
+                                android:layout_marginTop="16dp"
+                                android:layout_marginBottom="10dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Phép bổ trợ"
+                                android:textSize="18sp"
                                 android:textColor="@color/colorWhite"
-                                android:textSize="14sp"
                                 android:textStyle="bold" />
 
                             <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rcv_buff"
+                                android:id="@+id/rcv_weak"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp" />
+                                android:layout_marginBottom="16dp"></androidx.recyclerview.widget.RecyclerView>
+
+                            <TextView
+                                android:id="@+id/tv_tips"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorWhite" />
                         </LinearLayout>
                     </LinearLayout>
+                </androidx.core.widget.NestedScrollView>
+            </RelativeLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-                    <TextView
-                        android:id="@+id/tv_strong"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="18sp"
-                        android:textColor="@color/colorWhite"
-                        android:textStyle="bold" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rcv_strong"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"></androidx.recyclerview.widget.RecyclerView>
-
-
-
-                    <TextView
-                        android:id="@+id/tv_weak"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="18sp"
-                        android:textColor="@color/colorWhite"
-                        android:textStyle="bold" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rcv_weak"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"></androidx.recyclerview.widget.RecyclerView>
-
-                    <TextView
-                        android:id="@+id/tv_tips"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorWhite" />
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 </LinearLayout>

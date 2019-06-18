@@ -13,19 +13,25 @@ import android.os.Bundle;
 import android.text.Html;
 
 import android.text.Spanned;
-import android.util.Log;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.zinzin.lolcounter.adapter.CounterAdapter;
 import com.zinzin.lolcounter.adapter.InfoAdapter;
 import com.zinzin.lolcounter.adapter.ItemAdapter;
@@ -45,13 +51,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.zinzin.lolcounter.utils.Constant.URL_DOMAIN;
 
 public class DetailActivity extends AppCompatActivity implements Html.ImageGetter {
     private TextView tvName, tvStrong, tvWeak, tvTips;
     private ImageView ivHeader, ivAva;
-    private String name;
+    private String name, url;
+    private NestedScrollView scrollView;
+    private LinearLayout llLoading;
     private RecyclerView rvClass, rvLane, rvItem, rvBuff, rvCounter, rvStrong;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,9 +76,31 @@ public class DetailActivity extends AppCompatActivity implements Html.ImageGette
         toolbar.getNavigationIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         initView();
         name = getIntent().getStringExtra("Name");
+        url = getIntent().getStringExtra("Url");
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (Utils.isNetworkConnected(DetailActivity.this)) {
+                    parseHtml(url);
+                } else {
+                    if (mSwipeRefreshLayout.isRefreshing()) {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                    final Snackbar snackbar = Snackbar.make(scrollView, "Không có kết nối internet", Snackbar.LENGTH_SHORT);
+                    snackbar.setAction("Thử lại", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            parseHtml(url);
+                            snackbar.dismiss();
+                        }
+                    });
+                    snackbar.show();
+                }
+
+            }
+        });
         parseHtml(getIntent().getStringExtra("Url"));
-
-
     }
 
     private void initView() {
@@ -84,6 +116,11 @@ public class DetailActivity extends AppCompatActivity implements Html.ImageGette
         rvBuff = findViewById(R.id.rcv_buff);
         rvCounter = findViewById(R.id.rcv_weak);
         rvStrong = findViewById(R.id.rcv_strong);
+        scrollView = findViewById(R.id.scrollView);
+        llLoading = findViewById(R.id.ll_loading);
+        scrollView.setVisibility(View.GONE);
+        llLoading.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout = findViewById(R.id.swipeView);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -178,45 +215,64 @@ public class DetailActivity extends AppCompatActivity implements Html.ImageGette
 
             @Override
             protected void onPostExecute(DetailCounter detailCounter) {
-                InfoAdapter classAdapter = new InfoAdapter(DetailActivity.this, detailCounter.getList_info(), R.color.color_class);
-                InfoAdapter laneAdapter = new InfoAdapter(DetailActivity.this, detailCounter.getList_lane(), R.color.color_lane);
-                ItemAdapter itemAdapter = new ItemAdapter(DetailActivity.this, detailCounter.getList_item(), 0);
-                ItemAdapter buffAdapter = new ItemAdapter(DetailActivity.this, detailCounter.getList_buff(), 1);
-                CounterAdapter counterAdapter = new CounterAdapter(DetailActivity.this, detailCounter.getItemHeroesCounter());
-                CounterAdapter strongAdapter = new CounterAdapter(DetailActivity.this, detailCounter.getItemHeroesNerf());
+                if (mSwipeRefreshLayout.isRefreshing()) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+                if (!Utils.isNetworkConnected(DetailActivity.this)) {
+                    final Snackbar snackbar = Snackbar.make(scrollView, "Không có kết nối internet", Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction("Thử lại", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            parseHtml(url);
+                            snackbar.dismiss();
+                        }
+                    });
+                    snackbar.show();
+                } else {
+                    scrollView.setVisibility(View.VISIBLE);
+                    llLoading.setVisibility(View.GONE);
+                    InfoAdapter classAdapter = new InfoAdapter(DetailActivity.this, detailCounter.getList_info(), R.color.color_class);
+                    InfoAdapter laneAdapter = new InfoAdapter(DetailActivity.this, detailCounter.getList_lane(), R.color.color_lane);
+                    ItemAdapter itemAdapter = new ItemAdapter(DetailActivity.this, detailCounter.getList_item(), 0);
+                    ItemAdapter buffAdapter = new ItemAdapter(DetailActivity.this, detailCounter.getList_buff(), 1);
+                    CounterAdapter counterAdapter = new CounterAdapter(DetailActivity.this, detailCounter.getItemHeroesCounter());
+                    CounterAdapter strongAdapter = new CounterAdapter(DetailActivity.this, detailCounter.getItemHeroesNerf());
 
-                LinearLayoutManager layoutManager1 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-                LinearLayoutManager layoutManager2 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-                LinearLayoutManager layoutManager3 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-                LinearLayoutManager layoutManager4 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-                LinearLayoutManager layoutManager5 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.VERTICAL, false);
-                LinearLayoutManager layoutManager6 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.VERTICAL, false);
-                ViewCompat.setNestedScrollingEnabled(rvStrong, false);
-                ViewCompat.setNestedScrollingEnabled(rvCounter, false);
+                    LinearLayoutManager layoutManager1 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                    LinearLayoutManager layoutManager2 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                    LinearLayoutManager layoutManager3 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                    LinearLayoutManager layoutManager4 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                    LinearLayoutManager layoutManager5 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.VERTICAL, false);
+                    LinearLayoutManager layoutManager6 = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.VERTICAL, false);
+                    ViewCompat.setNestedScrollingEnabled(rvStrong, false);
+                    ViewCompat.setNestedScrollingEnabled(rvCounter, false);
 
-                rvClass.setLayoutManager(layoutManager1);
-                rvLane.setLayoutManager(layoutManager2);
-                rvItem.setLayoutManager(layoutManager3);
-                rvBuff.setLayoutManager(layoutManager4);
-                rvStrong.setLayoutManager(layoutManager5);
-                rvCounter.setLayoutManager(layoutManager6);
+                    rvClass.setLayoutManager(layoutManager1);
+                    rvLane.setLayoutManager(layoutManager2);
+                    rvItem.setLayoutManager(layoutManager3);
+                    rvBuff.setLayoutManager(layoutManager4);
+                    rvStrong.setLayoutManager(layoutManager5);
+                    rvCounter.setLayoutManager(layoutManager6);
 
-                rvClass.setAdapter(classAdapter);
-                rvItem.setAdapter(itemAdapter);
-                rvBuff.setAdapter(buffAdapter);
-                rvLane.setAdapter(laneAdapter);
-                rvStrong.setAdapter(strongAdapter);
-                rvCounter.setAdapter(counterAdapter);
-                Spanned spanned = Html.fromHtml(detailCounter.getTips(), DetailActivity.this, null);
-                tvTips.setText(spanned);
-                tvStrong.setText(name + " yếu khi đi với");
-                tvWeak.setText(name + " mạnh khi đi với");
-                tvName.setText(detailCounter.getName());
-                ivAva.setPadding(-20, -20, -20, -20);
-                RequestOptions requestOptions = new RequestOptions();
-                requestOptions.centerCrop();
-                Glide.with(DetailActivity.this).load(detailCounter.getUrl_ava()).apply(requestOptions).into(ivAva);
-                Glide.with(DetailActivity.this).load(detailCounter.getUrl_header()).error(R.drawable.header_default).into(ivHeader);
+                    rvClass.setAdapter(classAdapter);
+                    rvItem.setAdapter(itemAdapter);
+                    rvBuff.setAdapter(buffAdapter);
+                    rvLane.setAdapter(laneAdapter);
+                    rvStrong.setAdapter(strongAdapter);
+                    rvCounter.setAdapter(counterAdapter);
+                    if (!TextUtils.isEmpty(detailCounter.getTips())) {
+                        Spanned spanned = Html.fromHtml(detailCounter.getTips(), DetailActivity.this, null);
+                        tvTips.setText(spanned);
+                    }
+                    tvStrong.setText(name + " yếu khi đi với");
+                    tvWeak.setText(name + " mạnh khi đi với");
+                    tvName.setText(detailCounter.getName());
+                    ivAva.setPadding(-20, -20, -20, -20);
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.centerCrop();
+                    Glide.with(DetailActivity.this).load(detailCounter.getUrl_ava()).apply(requestOptions).into(ivAva);
+                    Glide.with(DetailActivity.this).load(detailCounter.getUrl_header()).error(R.drawable.header_default).into(ivHeader);
+                }
             }
         }.execute();
     }

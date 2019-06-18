@@ -39,18 +39,20 @@
 
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="16dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <EditText
             android:id="@+id/edt_search"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:background="@drawable/search_border_background"
@@ -59,21 +61,34 @@
             android:drawablePadding="15dp"
             android:hint="Tìm theo tên"
             android:imeOptions="actionDone"
-            android:maxLength="40"
             android:lines="1"
+            android:maxLength="40"
             android:singleLine="true"
             android:textColor="@android:color/white"
             android:textColorHint="@color/text_search_box"
-            android:textSize="16sp"
-           />
+            android:textSize="16sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rcv_hero"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rcv_hero"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true" />
+            </RelativeLayout>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     </LinearLayout>
 
 

@@ -4,41 +4,38 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.zinzin.lolcounter.adapter.HeroAdapter;
 import com.zinzin.lolcounter.model.ItemHero;
+import com.zinzin.lolcounter.utils.Utils;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.zinzin.lolcounter.utils.Constant.URL_DOMAIN;
 
 public class MainActivity extends AppCompatActivity {
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private ImageView ivheader;
     private RecyclerView rvHero;
     private EditText edtSearch;
     private HeroAdapter heroAdapter;
-    private  ArrayList<ItemHero>  listHero = new ArrayList<>();
+    private ArrayList<ItemHero> listHero = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +46,38 @@ public class MainActivity extends AppCompatActivity {
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
         collapsingToolbarLayout.setTitle("Khắc Chế Tướng LoL");
         collapsingToolbarLayout.setExpandedTitleColor(Color.TRANSPARENT);
-        // Set collapsing tool bar image.
+        mSwipeRefreshLayout = findViewById(R.id.swipeView);
         ivheader = findViewById(R.id.iv_header);
         edtSearch = findViewById(R.id.edt_search);
         rvHero = findViewById(R.id.rcv_hero);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (Utils.isNetworkConnected(MainActivity.this)) {
+                    setUpView();
+                } else {
+                    if (mSwipeRefreshLayout.isRefreshing()) {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                    final Snackbar snackbar = Snackbar.make(rvHero, "Không có kết nối internet", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
+
+            }
+        });
+        setUpView();
+    }
+
+    private void setUpView() {
         Bundle bundle = getIntent().getExtras();
-        if(bundle!= null){
+        if (bundle != null) {
             ArrayList<ItemHero> arrHero = bundle.getParcelableArrayList("data");
             if (arrHero != null) {
                 listHero.clear();
                 listHero.addAll(arrHero);
             }
+            initHeader(bundle.getString("urlHeader"));
         }
-        initHeader();
         initRecyclerView();
         initEdt();
     }
@@ -84,59 +100,38 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("StaticFieldLeak")
     private void initRecyclerView() {
-        GridLayoutManager adapterManager  = new GridLayoutManager(MainActivity.this, 3);
+        GridLayoutManager adapterManager = new GridLayoutManager(MainActivity.this, 3);
         rvHero.setLayoutManager(adapterManager);
-        heroAdapter = new HeroAdapter(MainActivity.this,listHero);
+        heroAdapter = new HeroAdapter(MainActivity.this, listHero);
         rvHero.setAdapter(heroAdapter);
         heroAdapter.setListener(new HeroAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(ItemHero item, int position) {
-                Intent intent = new Intent(MainActivity.this,DetailActivity.class);
+                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
                 intent.putExtra("Url", item.getUrl());
                 intent.putExtra("Title", item.getBaseName());
                 intent.putExtra("Name", item.getName());
                 startActivity(intent);
             }
         });
+        if (mSwipeRefreshLayout.isRefreshing()) {
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void initHeader() {
-        new AsyncTask<Void, Void, String>() {
-
-            public String doInBackground(Void... params) {
-                String title = "";
-                Document doc;
-                try {
-                    doc = Jsoup.connect("https://lienminh.garena.vn/").get();
-                    Element newsHeadlines = doc.select("div.default-1-2").first();
-                    title = newsHeadlines.select("img").attr("src");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return title;
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                Glide.with(MainActivity.this).load("https://lienminh.garena.vn" + result).optionalCenterCrop().error(R.drawable.header_default).into(ivheader);
-            }
-        }.execute();
+    private void initHeader(String result) {
+        Glide.with(MainActivity.this).load("https://lienminh.garena.vn" + result).optionalCenterCrop().error(R.drawable.header_default).into(ivheader);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
     private void filter(String text) {
-        List<ItemHero> heroBase = new ArrayList<>();
-        heroBase.addAll(listHero);
+        List<ItemHero> heroBase = new ArrayList<>(listHero);
         List<ItemHero> listUnitsFilter = new ArrayList();
         for (ItemHero units : heroBase) {
             //filter theo tên
