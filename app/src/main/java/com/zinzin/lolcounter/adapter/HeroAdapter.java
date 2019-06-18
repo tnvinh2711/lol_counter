@@ -62,6 +62,11 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    public void updateList(List<ItemHero> heroBase) {
+        unitsList = heroBase;
+        notifyDataSetChanged();
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivIconUnit;
         TextView tvNameUnit;

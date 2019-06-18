@@ -45,8 +45,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.zinzin.lolcounter.MainActivity.URL_DOMAIN;
+import static com.zinzin.lolcounter.utils.Constant.URL_DOMAIN;
 
 public class DetailActivity extends AppCompatActivity implements Html.ImageGetter {
     private TextView tvName, tvStrong, tvWeak, tvTips;
@@ -217,7 +216,7 @@ public class DetailActivity extends AppCompatActivity implements Html.ImageGette
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.centerCrop();
                 Glide.with(DetailActivity.this).load(detailCounter.getUrl_ava()).apply(requestOptions).into(ivAva);
-                Glide.with(DetailActivity.this).load(detailCounter.getUrl_header()).into(ivHeader);
+                Glide.with(DetailActivity.this).load(detailCounter.getUrl_header()).error(R.drawable.header_default).into(ivHeader);
             }
         }.execute();
     }

@@ -1,9 +1,12 @@
 package com.zinzin.lolcounter.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemHero {
+public class ItemHero implements Parcelable {
     String name;
     String baseName;
     String url;
@@ -15,6 +18,14 @@ public class ItemHero {
         this.baseName = baseName;
         this.url = url;
         this.url_image = url_image;
+    }
+
+    public ItemHero(Parcel in) {
+        name = in.readString();
+        baseName = in.readString();
+        url = in.readString();
+        url_image = in.readString();
+        in.readStringList(item);
     }
 
     public ItemHero() {
@@ -59,4 +70,28 @@ public class ItemHero {
     public void setItem(List<String> item) {
         this.item = item;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(baseName);
+        dest.writeString(url);
+        dest.writeString(url_image);
+        dest.writeStringList(item);
+    }
+
+    public static final Parcelable.Creator<ItemHero> CREATOR = new Parcelable.Creator<ItemHero>() {
+        public ItemHero createFromParcel(Parcel in) {
+            return new ItemHero(in);
+        }
+
+        public ItemHero[] newArray(int size) {
+            return new ItemHero[size];
+        }
+    };
 }
