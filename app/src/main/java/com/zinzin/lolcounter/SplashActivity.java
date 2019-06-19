@@ -26,8 +26,6 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import am.appwise.components.ni.ConnectionCallback;
-import am.appwise.components.ni.NoInternetDialog;
 
 import static com.zinzin.lolcounter.utils.Constant.URL_DOMAIN;
 
@@ -56,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     private void loadData() {
-        loading.show();
+        loading.setVisibility(View.VISIBLE);
         new AsyncTask<Void, Void, ArrayList<ItemHero>>() {
 
             public ArrayList<ItemHero> doInBackground(Void... params) {
@@ -85,7 +83,7 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(ArrayList<ItemHero> result) {
-                loading.hide();
+                loading.setVisibility(View.GONE);
                 if (!Utils.isNetworkConnected(SplashActivity.this)) {
                     final Snackbar snackbar = Snackbar.make(view, "Không có kết nối internet", Snackbar.LENGTH_INDEFINITE);
                     snackbar.setAction("Thử lại", new View.OnClickListener() {

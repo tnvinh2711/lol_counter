@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:theme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7188826417129130~4115034597"/>
         <activity android:name=".SplashActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait">

@@ -7,23 +7,37 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.zinzin.lolcounter.adapter.HeroAdapter;
 import com.zinzin.lolcounter.model.ItemHero;
+import com.zinzin.lolcounter.utils.Preference;
 import com.zinzin.lolcounter.utils.Utils;
+import com.zinzin.lolcounter.utils.WelcomeDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivheader;
     private RecyclerView rvHero;
     private EditText edtSearch;
+    private AdView mAdView;
+    private boolean isLoadAd;
+    private boolean isLoadClickAd;
+    private int clickitem = 0;
+    private WelcomeDialog welcomeDialog;
+    private InterstitialAd mInterstitialAd, mInterstitialAdClick;
     private HeroAdapter heroAdapter;
     private ArrayList<ItemHero> listHero = new ArrayList<>();
 
@@ -41,15 +61,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.collapsing_toolbar);
-        setSupportActionBar(toolbar);
-        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
-        collapsingToolbarLayout.setTitle("Khắc Chế Tướng LoL");
-        collapsingToolbarLayout.setExpandedTitleColor(Color.TRANSPARENT);
-        mSwipeRefreshLayout = findViewById(R.id.swipeView);
         ivheader = findViewById(R.id.iv_header);
         edtSearch = findViewById(R.id.edt_search);
         rvHero = findViewById(R.id.rcv_hero);
+        MobileAds.initialize(this, "ca-app-pub-7188826417129130~4115034597");
+        mAdView = findViewById(R.id.adView);
+        mAdView.setVisibility(View.GONE);
+        setUpDialog();
+        loadAd();
+        setUpToolBar();
+        setUpSwipeView();
+        setUpView();
+    }
+
+    private void setUpSwipeView() {
+        mSwipeRefreshLayout = findViewById(R.id.swipeView);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -65,7 +91,99 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        setUpView();
+    }
+
+    private void setUpToolBar() {
+        Toolbar toolbar = findViewById(R.id.collapsing_toolbar);
+        setSupportActionBar(toolbar);
+        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
+        collapsingToolbarLayout.setTitle("Khắc Chế Tướng LoL");
+        collapsingToolbarLayout.setExpandedTitleColor(Color.TRANSPARENT);
+    }
+
+    private void setUpDialog() {
+        welcomeDialog = new WelcomeDialog(this, new WelcomeDialog.DialogCallBack() {
+            @Override
+            public void onClickOpen() {
+                if(isLoadClickAd) {
+                    mInterstitialAdClick.show();
+                    isLoadClickAd = false;
+                } else {
+                    Toast.makeText(MainActivity.this, "Không có quảng cáo, xin vui lòng mở sau", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        welcomeDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    }
+
+    private void loadAd() {
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAdClick = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-7188826417129130/8044400657");
+        mInterstitialAdClick.setAdUnitId("ca-app-pub-7188826417129130/8189948309");
+        mInterstitialAdClick.loadAd(new AdRequest.Builder().build());
+
+        if (Preference.getBoolean(this, "firstrun", true)) {
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        } else {
+            long timeOld = Preference.getLong(this, "Time", 0);
+            long timeNew = System.currentTimeMillis();
+            if (timeOld != 0 && timeNew - timeOld >= 86400000) {
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            } else {
+                if (!Preference.getBoolean(MainActivity.this, "LoadAds", false)) {
+                    mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                }
+            }
+        }
+        mAdView.loadAd(new AdRequest.Builder().build());
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                mAdView.setVisibility(View.VISIBLE);
+                mAdView.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_up));
+            }
+
+            @Override
+            public void onAdOpened() {
+                mAdView.setVisibility(View.GONE);
+                mAdView.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_down));
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdView.loadAd(new AdRequest.Builder().build());
+                    }
+                }, 1800000);
+            }
+        });
+        mInterstitialAdClick.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                isLoadClickAd = true;
+            }
+
+            @Override
+            public void onAdClosed() {
+                mInterstitialAdClick.loadAd(new AdRequest.Builder().build());
+            }
+            @Override
+            public void onAdFailedToLoad(int i) {
+                mInterstitialAdClick.loadAd(new AdRequest.Builder().build());
+            }
+        });
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                isLoadAd = true;
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                Preference.getBoolean(MainActivity.this, "LoadAds", false);
+                isLoadAd = false;
+            }
+
+        });
     }
 
     private void setUpView() {
@@ -108,11 +226,20 @@ public class MainActivity extends AppCompatActivity {
         heroAdapter.setListener(new HeroAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(ItemHero item, int position) {
-                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra("Url", item.getUrl());
-                intent.putExtra("Title", item.getBaseName());
-                intent.putExtra("Name", item.getName());
-                startActivity(intent);
+                clickitem++;
+                if(isLoadAd && clickitem == 3){
+                    Preference.save(MainActivity.this, "firstrun", false);
+                    Preference.save(MainActivity.this, "Time", System.currentTimeMillis());
+                    Preference.save(MainActivity.this, "LoadAds", true);
+                    mInterstitialAd.show();
+                    isLoadAd = false;
+                } else {
+                    Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                    intent.putExtra("Url", item.getUrl());
+                    intent.putExtra("Title", item.getBaseName());
+                    intent.putExtra("Name", item.getName());
+                    startActivity(intent);
+                }
             }
         });
         if (mSwipeRefreshLayout.isRefreshing()) {
@@ -128,6 +255,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.icon_info) {
+            showDialogAds();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showDialogAds() {
+        welcomeDialog.show();
     }
 
     private void filter(String text) {
