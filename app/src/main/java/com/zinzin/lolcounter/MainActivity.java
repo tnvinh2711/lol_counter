@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void OnItemClick(ItemHero item, int position) {
                 clickitem++;
-                if(isLoadAd && clickitem == 3){
+                if(isLoadAd && clickitem > 3){
                     Preference.save(MainActivity.this, "firstrun", false);
                     Preference.save(MainActivity.this, "Time", System.currentTimeMillis());
                     Preference.save(MainActivity.this, "LoadAds", true);
