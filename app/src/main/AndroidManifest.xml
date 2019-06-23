@@ -14,7 +14,7 @@
         tools:replace="android:theme">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7188826417129130~4115034597"/>
+            android:value="ca-app-pub-5796098881172039~8728680952"/>
         <activity android:name=".SplashActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait">

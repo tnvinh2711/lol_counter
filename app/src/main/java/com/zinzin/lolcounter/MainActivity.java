@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         ivheader = findViewById(R.id.iv_header);
         edtSearch = findViewById(R.id.edt_search);
         rvHero = findViewById(R.id.rcv_hero);
-        MobileAds.initialize(this, "ca-app-pub-7188826417129130~4115034597");
+        MobileAds.initialize(this, "ca-app-pub-5796098881172039~8728680952");
         mAdView = findViewById(R.id.adView);
         mAdView.setVisibility(View.GONE);
         setUpDialog();
@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadAd() {
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAdClick = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-7188826417129130/8044400657");
-        mInterstitialAdClick.setAdUnitId("ca-app-pub-7188826417129130/8189948309");
+        mInterstitialAd.setAdUnitId("ca-app-pub-5796098881172039/1013433344");
+        mInterstitialAdClick.setAdUnitId("ca-app-pub-5796098881172039/6292065785");
         mInterstitialAdClick.loadAd(new AdRequest.Builder().build());
 
         if (Preference.getBoolean(this, "firstrun", true)) {

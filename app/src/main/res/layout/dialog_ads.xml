@@ -41,7 +41,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:textColor="@color/colorPrimary"
-                android:text="App tổng hợp tất cả thông tin những vị tướng khắc chế nhau trong game LMHT, bạn có thể tham khảo để lựa chọn tướng tốt hơn trong những trận đấu.\nĐể ủng hộ app, bạn có thể nhấn xem video quảng cáo bên dưới.\nXin cảm ơn!!!"
+                android:text="App tổng hợp tất cả thông tin những vị tướng khắc chế nhau trong game LMHT, bạn có thể tham khảo để lựa chọn tướng tốt hơn trong những trận đấu.\n\nTrong App này có chèn quảng cáo, không có tiền thì làm app làm sao ^^\n\nXin cảm ơn!!!"
                 android:layout_marginTop="10dp" />
             <TextView
                 android:layout_width="100dp"
